@@ -1,17 +1,9 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const {
-  Types: { ObejctId },
-} = Schema;
-
-const imageSchema = new Schema({
-  width: Number,
-  height: Number,
-});
 
 const diarySchema = new Schema({
   author: {
-    type: ObejctId,
+    type: String,
     required: true,
     ref: "User",
   },
@@ -25,14 +17,17 @@ const diarySchema = new Schema({
   keyword: {
     type: Array,
   },
-  analysis: {
-    type: String,
+  analysisType: {
+    type: Number,
   },
   emotion: {
     type: Array,
   },
+  img: {
+    type: Array,
+  },
   resultImg: {
-    type: imageSchema,
+    type: Array,
   },
   music: {
     type: String,
@@ -49,6 +44,6 @@ const diarySchema = new Schema({
   },
 });
 
-const Diary = mongoose.model("Diary", diarySchema, "diary");
+const Diary = mongoose.model("Diary", diarySchema, "diaries");
 
 module.exports = { Diary };

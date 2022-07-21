@@ -19,8 +19,12 @@ const userSchema = new Schema({
   badge: {
     type: Array,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const User = mongoose.model("User", userSchema, "user");
+const User = mongoose.model("User", userSchema, "users");
 
 module.exports = { User };

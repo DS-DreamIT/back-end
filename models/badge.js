@@ -1,14 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-
-const {
-  Types: { ObejctId },
-} = Schema;
-
-const imageSchema = new Schema({
-  width: Number,
-  height: Number,
-});
+const ObejctId = Schema.Types.ObjectId;
 
 const badgeSchema = new Schema({
   id: {
@@ -18,7 +10,7 @@ const badgeSchema = new Schema({
     type: String,
   },
   img: {
-    type: imageSchema,
+    type: Array,
   },
   explanation: {
     type: Date,
@@ -28,6 +20,6 @@ const badgeSchema = new Schema({
   },
 });
 
-const Badge = mongoose.model("Badge", badgeSchema, "badge");
+const Badge = mongoose.model("Badge", badgeSchema, "badges");
 
 module.exports = { Badge };

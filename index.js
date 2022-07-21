@@ -2,19 +2,19 @@ const express = require("express");
 const morgan = require("morgan");
 const path = require("path");
 const mongoose = require("mongoose");
+require("dotenv").config({ path: ".env" });
 
-// router 등록만 해둠
-const userRouter = require("./routes/user");
-const diaryRouter = require("./routes/diary");
+const userRouter = require("./routes/users");
+const diaryRouter = require("./routes/diaries");
 
 const app = express();
-app.set("port", process.env.PORT || 3000);
+app.set("port", process.env.PORT || 3001);
 
 mongoose
   .connect(
-    `mongodb://${process.env.USER_NAME}:${process.env.PASSWORD}@27017/admin`,
+    `mongodb://${process.env.USER_NAME}:${process.env.PASSWORD}@localhost:27017/admin`,
     {
-      dbName: process.env.DB_NAME,
+      dbName: "dreamable",
       useNewUrlParser: true,
     }
   )
@@ -26,17 +26,13 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use("/api/user", userRouter);
+app.use("/api/diary", diaryRouter);
+
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
   error.status = 404;
   next(error);
-});
-
-app.use((err, req, res, next) => {
-  res.locals.message = err.message;
-  res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
-  res.status(err.status || 500);
-  res.render("error");
 });
 
 app.listen(app.get("port"), () => {
