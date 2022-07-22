@@ -13,8 +13,9 @@ const userSchema = new Schema({
     unique: true,
     lowercase: true,
   },
-  diary: {
-    type: [new Schema({ diaryId: String })],
+  password: {
+    type: String,
+    required: true,
   },
   badge: {
     type: Array,

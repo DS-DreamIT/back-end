@@ -27,7 +27,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use(morgan("dev"));
 //app.use('/', express.static(path.join(__dirname, 'public')));
-app.use(express.json());
+
+// allow us to get the data in request.body
+app.use(express.json({ extended: false }));
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/user", userRouter);

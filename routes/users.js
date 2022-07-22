@@ -21,7 +21,22 @@ router.get("/:userEmail", (req, res) => {
       return res.status(400).json({ success: false, err });
     }
     if (user) {
-      return res.status(200).json({ success: true, user });
+      Diary.find({ author: user._id }).exec((err, diaries) => {
+        if (err) {
+          return res.status(200).json({ success: true, user });
+        }
+        const diary_list = diaries.map((d) => {
+          return { _id: d._id, emotion: d.emotion };
+        });
+        const diary_count = diaries.length;
+        console.log(diary_count);
+        return res.status(200).json({
+          success: true,
+          user,
+          diary_list: diary_list,
+          diary_count: diary_count,
+        });
+      });
     }
   });
 });
