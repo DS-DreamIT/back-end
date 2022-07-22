@@ -11,7 +11,10 @@ router.get("/:diaryId", (req, res) => {
   let diaryId = req.params.diaryId;
 
   Diary.findOne({ _id: ObjectId(diaryId) }).exec((err, diary) => {
-    return res.status(200).json({ success: true, diary });
+    Like.find({ diaryId: diary._id }).exec((err, likes) => {
+      const like_list = likes.map((like) => like.userId);
+      return res.status(200).json({ success: true, like_list, diary });
+    });
   });
 });
 
@@ -57,12 +60,15 @@ router.get("/emotion/:emotion", (req, res) => {
     if (err) {
       return res.status(200).json({ success: false, err });
     }
-    return res.status(200).json({ success: true, diary });
+    Like.find({ diaryId: diary._id }).exec((err, likes) => {
+      const like_list = likes.map((like) => like.userId);
+      return res.status(200).json({ success: true, like_list, diary });
+    });
   });
 });
 
 // 좋아요 수
-router.post("/:diaryId/likes/user/:userId", (req, res) => {
+router.put("/:diaryId/likes/user/:userId", (req, res) => {
   let diaryId = req.params.diaryId;
   let userId = req.params.userId;
   // 다이어리 좋아요 누른 사람 목록에 userId가 있는지 확인하고

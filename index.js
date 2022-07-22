@@ -21,6 +21,10 @@ mongoose
   .then(() => console.log("Database connection OK"))
   .catch((error) => console.log("error :" + error));
 
+// swagger
+const { swaggerUi, specs } = require("./swagger/swagger");
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
 app.use(morgan("dev"));
 //app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.json());

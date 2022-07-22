@@ -1,0 +1,40 @@
+paths:
+  /api/user:
+    get:
+      summary: "전체 유저 조회"
+      description: "get 요청, 사용하지는 않지만 데이터베이스 점검용으로 놔뒀음!"
+      tags: [User]
+  /api/user/{userEmail}:
+    get:
+      summary: "유저 정보 조회"
+      description: "params에 user의 email을 담아 get 요청, 추후 email이 아닌 id로도 변경될 가능성 있음"
+      tags: [User]
+      parameters:
+        - name: "userEmail"
+          in: "path"
+          required: true
+          description: "유저 이메일"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "shn7446@naver.com"
+              summary: "example email"
+      responses:
+        "200":
+          description: "유저 상세 정보"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              user:
+                type: object
+                example:
+                  {
+                    "_id": "62d8e25bfsdfds",
+                    "name": "dream",
+                    "email": "sample@naver.com",
+                    "diary": [],
+                    "badge": [],
+                  }

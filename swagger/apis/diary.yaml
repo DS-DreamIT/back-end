@@ -1,0 +1,25 @@
+paths:
+  /api/diary/{diaryId}:
+    get:
+      summary: "꿈 일기 상세 조회"
+      description: "params에 diary의 고유 id를 포함하여 get 요청"
+      tags: [Diary]
+  /api/diary/user/{userId}:
+    get:
+      summary: "사용자의 꿈 전체 리스트 조회"
+      description: "params에 user의 고유 id를 포함하여 get 요청"
+      tags: [Diary]
+    post:
+      summary: "꿈 일기 업로드"
+      description: "params에 user의 고유 id, body에 꿈 일기 정보를 담아 get 요청"
+      tags: [Diary]
+  /api/diary/emotion/{emotion}:
+    get:
+      summary: "특정 감정에 해당하는 글 하나를 랜덤 조회"
+      description: "params에 emotion(감정)을 포함하여 get 요청"
+      tags: [Diary]
+  /api/diary/{diaryId}/likes:
+    put:
+      summary: "꿈 일기 좋아요 수 업데이트"
+      description: "기존 좋아요 여부와 관계 없이 params에 diary의 고유 id만 담아보내면 좋아요 수 업데이트, put 요청"
+      tags: [Diary]
