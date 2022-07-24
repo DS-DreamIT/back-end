@@ -2,6 +2,9 @@ const express = require("express");
 const morgan = require("morgan");
 const path = require("path");
 const mongoose = require("mongoose");
+const passport = require("passport");
+const passportConfig = require("./auth/passport");
+
 require("dotenv").config({ path: ".env" });
 
 const userRouter = require("./routes/users");
@@ -34,6 +37,10 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/user", userRouter);
 app.use("/api/diary", diaryRouter);
+
+// login
+app.use(passport.initialize());
+passportConfig();
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
