@@ -13,7 +13,7 @@ app.set("port", process.env.PORT || 3001);
 
 mongoose
   .connect(
-    `mongodb://${process.env.USER_NAME}:${process.env.PASSWORD}@localhost:27017/admin`,
+    `mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@dreamable.isiau.mongodb.net/?retryWrites=true&w=majority`,
     {
       dbName: "dreamable",
       useNewUrlParser: true,
