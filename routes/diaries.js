@@ -29,6 +29,9 @@ router.get("/user/:userId", (req, res) => {
 });
 
 // 유저의 꿈 저장하기 req.body
+// body에 들어갈 정보
+// content, keyword, analysisType, emotion, img, resultImg, music, release
+// 없는 정보는 빈칸으로 !
 router.post("/user/:userId", (req, res) => {
   let userId = req.params.userId;
   // 유저 확인
