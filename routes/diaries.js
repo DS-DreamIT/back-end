@@ -9,9 +9,18 @@ const router = express.Router();
 
 router.get("/:diaryId", (req, res) => {
   let diaryId = req.params.diaryId;
-
   Diary.findOne({ _id: ObjectId(diaryId) }).exec((err, diary) => {
+    if (err) {
+      return res
+        .status(200)
+        .json({ success: false, message: "꿈 일기 id가 없음" });
+    }
     Like.find({ diaryId: diary._id }).exec((err, likes) => {
+      if (err) {
+        return res
+          .status(200)
+          .json({ success: false, message: err + "꿈 일기 없음" });
+      }
       const like_list = likes.map((like) => like.userId);
       return res.status(200).json({ success: true, like_list, diary });
     });
@@ -24,13 +33,14 @@ router.get("/user/:userId", (req, res) => {
 
   Diary.find({ author: userId }).exec((err, diaries) => {
     console.log(diaries);
+    if (err) {
+      return res.status(200).json({ success: false, err });
+    }
     return res.status(200).json({ success: true, diaries });
   });
 });
 
 // 유저의 꿈 저장하기 req.body
-// body에 들어갈 정보
-// content, keyword, analysisType, emotion, img, resultImg, music, release
 // 없는 정보는 빈칸으로 !
 router.post("/user/:userId", (req, res) => {
   let userId = req.params.userId;
@@ -39,6 +49,7 @@ router.post("/user/:userId", (req, res) => {
   User.findOne({ _id: userId }).exec((err, user) => {
     if (user) {
       let createdAt = Date.now() + 3600000 * 9;
+      // 꿈 분석
       Diary.create(
         // 꿈 저장
         { author: userId, likes: 0, ...req.body, createdAt },
@@ -46,7 +57,7 @@ router.post("/user/:userId", (req, res) => {
           if (err) {
             return res.status(200).json({ success: false, err });
           }
-          return res.status(200).json({ success: true, Diary: diary });
+          return res.status(200).json({ success: true, diary });
         }
       );
     } else {
@@ -65,6 +76,9 @@ router.get("/emotion/:emotion", (req, res) => {
     }
     Like.find({ diaryId: diary._id }).exec((err, likes) => {
       const like_list = likes.map((like) => like.userId);
+      if (err) {
+        return res.status(200).json({ json: false, err });
+      }
       return res.status(200).json({ success: true, like_list, diary });
     });
   });

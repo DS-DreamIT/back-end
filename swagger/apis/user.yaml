@@ -30,11 +30,48 @@ paths:
                 type: boolean
               user:
                 type: object
-                example:
-                  {
-                    "_id": "62d8e25bfsdfds",
-                    "name": "dream",
-                    "email": "sample@naver.com",
-                    "diary": [],
-                    "badge": [],
-                  }
+  /api/user/register:
+    post:
+      summary: "회원가입"
+      description: "body에 userEmail, nickname, password를 넣어 post 요청"
+      tags: [User]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userEmail:
+                  type: string
+                nickname:
+                  type: string
+                password:
+                  type: string
+              example:
+                userEmail: "sss@naaa.com"
+                nickname: "영희"
+                password: "passsss"
+      responses:
+        "200":
+          description: "회원가입 성공"
+  /api/user/login:
+    post:
+      summary: "회원 로그인"
+      description: "userEmail과 password를 body에 담아 post 요청, get 방식이 아님에 주의"
+      tags: [User]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userEmail:
+                  type: string
+                password:
+                  type: string
+              example:
+                userEmail: "shn7446@naver.com"
+                password: "password"
+      responses:
+        "200":
+          description: "로그인 성공, 토큰 발행"
