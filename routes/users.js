@@ -153,9 +153,62 @@ router.post("/login", (req, res) => {
                 return res.status(200).json({ success: true, message: err });
               }
               console.log(token);
-              return res
-                .status(200)
-                .json({ success: true, token: token, user: user });
+              // 글쓴이 키워드 통계가 있는지 확인하기
+              if (user.keywords?.length > 0) {
+                console.log("키워드 통계 있음, 바로 로그인 성공");
+                return res
+                  .status(200)
+                  .json({ success: true, token: token, user: user });
+              } else {
+                console.log("키워드 통계가 없습니다");
+                Diary.find({ author: user._id }, (err, diaries) => {
+                  if (err) {
+                    return res
+                      .status(200)
+                      .json({ success: false, message: err });
+                  }
+                  if (diaries.length > 0) {
+                    // 다이어리를 적은 적이 있는데 통계가 없을 때
+                    let keyword_list = {};
+                    diaries.forEach((diary) => {
+                      diary.keyword.forEach((keyword) => {
+                        if (keyword in keyword_list) {
+                          keyword_list[keyword] += 1;
+                        } else {
+                          keyword_list[keyword] = 1;
+                        }
+                      });
+                    });
+                    const sort_list = Object.entries(keyword_list)
+                      .sort(([, a], [, b]) => b - a)
+                      .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+
+                    let index = 0;
+                    let result = [];
+                    for (s in sort_list) {
+                      result.push(s);
+                      index++;
+                      if (index === 3) break;
+                    }
+                    // db 업데이트
+                    User.findOneAndUpdate(
+                      { _id: user._id },
+                      { $set: { keywords: result } }
+                    ).exec((err, keywords) => {
+                      if (err)
+                        return res.status(200).json({
+                          success: false,
+                          error: "키워드 통계 업데이트 실패",
+                        });
+                      console.log(keywords);
+                    });
+                  } else {
+                    return res
+                      .status(200)
+                      .json({ success: true, message: "로그인 성공" });
+                  }
+                });
+              }
             });
           }
         }

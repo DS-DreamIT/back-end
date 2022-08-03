@@ -26,9 +26,6 @@ const diarySchema = new Schema({
   img: {
     type: Array,
   },
-  resultImg: {
-    type: Array,
-  },
   music: {
     type: String,
   },

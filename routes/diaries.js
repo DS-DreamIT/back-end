@@ -1,9 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const axios = require("axios");
 const ObjectId = mongoose.Types.ObjectId;
 const { Diary } = require("../models/diary");
 const { User } = require("../models/user");
 const { Like } = require("../models/like");
+
+require("dotenv").config({ path: ".env" });
 
 const router = express.Router();
 
@@ -44,22 +47,91 @@ router.get("/user/:userId", (req, res) => {
 // 없는 정보는 빈칸으로 !
 router.post("/user/:userId", (req, res) => {
   let userId = req.params.userId;
+  let content = req.body.content;
   // 유저 확인
   console.log(userId);
-  User.findOne({ _id: userId }).exec((err, user) => {
+  User.findOne({ _id: userId }).exec(async (err, user) => {
     if (user) {
       let createdAt = Date.now() + 3600000 * 9;
+      let emotion = [];
+      let keyword = [];
       // 꿈 분석
+      await axios
+        .post(`${process.env.AI_API_URL}/emotion`, {
+          sentence: content,
+        })
+        .then((response) => {
+          emotion = response.data.result;
+          console.log(response.data);
+        });
+      await axios
+        .post(`${process.env.AI_API_URL}/keyword`, {
+          sentence: content,
+        })
+        .then((response) => {
+          keyword = response.data.keywords;
+          console.log(response.data);
+        });
       Diary.create(
         // 꿈 저장
-        { author: userId, likes: 0, ...req.body, createdAt },
+        {
+          author: userId,
+          likes: 0,
+          emotion: emotion,
+          keyword: keyword,
+          ...req.body,
+          createdAt,
+        },
         (err, diary) => {
           if (err) {
             return res.status(200).json({ success: false, err });
           }
+          // 꿈 분석 넘어오면 users에 있는 키워드 통계 업데이트 로직 가져오기
           return res.status(200).json({ success: true, diary });
         }
       );
+      // 유저 키워드 통계 업데이트
+      Diary.find({ author: user._id }, (err, diaries) => {
+        if (err) {
+          return res.status(200).json({ success: false, message: err });
+        }
+        if (diaries.length > 0) {
+          // 다이어리를 적은 적이 있는데 통계가 없을 때
+          let keyword_list = {};
+          diaries.forEach((diary) => {
+            diary.keyword.forEach((keyword) => {
+              if (keyword in keyword_list) {
+                keyword_list[keyword] += 1;
+              } else {
+                keyword_list[keyword] = 1;
+              }
+            });
+          });
+          const sort_list = Object.entries(keyword_list)
+            .sort(([, a], [, b]) => b - a)
+            .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+
+          let index = 0;
+          let result = [];
+          for (s in sort_list) {
+            result.push(s);
+            index++;
+            if (index === 3) break;
+          }
+          // db 업데이트
+          User.findOneAndUpdate(
+            { _id: user._id },
+            { $set: { keywords: result } }
+          ).exec((err, keywords) => {
+            if (err)
+              return res.status(200).json({
+                success: false,
+                error: "키워드 통계 업데이트 실패",
+              });
+            console.log(keywords);
+          });
+        }
+      });
     } else {
       return res.status(200).json({ success: false });
     }
