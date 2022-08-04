@@ -5,11 +5,30 @@ const ObjectId = mongoose.Types.ObjectId;
 const { Diary } = require("../models/diary");
 const { User } = require("../models/user");
 const { Like } = require("../models/like");
+const multer = require("multer");
+const AWS = require("aws-sdk");
+const multerS3 = require("multer-s3");
 
 require("dotenv").config({ path: ".env" });
 
 const router = express.Router();
 
+// AWS S3
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: "ap-northeast-2",
+});
+
+const upload = multer({
+  storage: multerS3({
+    s3: new AWS.S3(),
+    bucket: "ds-dreamable",
+    key(req, file, cb) {
+      cb(null, `original/${Date.now()}_${file.originalname}`);
+    },
+  }),
+});
 router.get("/:diaryId", (req, res) => {
   let diaryId = req.params.diaryId;
   Diary.findOne({ _id: ObjectId(diaryId) }).exec((err, diary) => {
@@ -45,20 +64,29 @@ router.get("/user/:userId", (req, res) => {
 
 // 유저의 꿈 저장하기 req.body
 // 없는 정보는 빈칸으로 !
-router.post("/user/:userId", (req, res) => {
+router.post("/user/:userId", upload.single("Image"), (req, res) => {
   let userId = req.params.userId;
   let content = req.body.content;
+  let img = (req.file !== undefined && req.file?.location) || "";
+  console.log("file : ", req.file);
+  console.log(req.body.content);
   // 유저 확인
-  console.log(userId);
   User.findOne({ _id: userId }).exec(async (err, user) => {
     if (user) {
-      let createdAt = Date.now() + 3600000 * 9;
+      let today = new Date();
+
+      let createdAt =
+        today.getFullYear() +
+        "-" +
+        ("0" + (today.getMonth() + 1)).slice(-2) +
+        "-" +
+        ("0" + today.getDate()).slice(-2);
       let emotion = [];
       let keyword = [];
       // 꿈 분석
       await axios
         .post(`${process.env.AI_API_URL}/emotion`, {
-          sentence: content,
+          content: content,
         })
         .then((response) => {
           emotion = response.data.result;
@@ -66,30 +94,15 @@ router.post("/user/:userId", (req, res) => {
         });
       await axios
         .post(`${process.env.AI_API_URL}/keyword`, {
-          sentence: content,
+          content: content,
         })
         .then((response) => {
-          keyword = response.data.keywords;
+          if (response.statusCode === 200) {
+            keyword = response.data.keywords;
+          }
           console.log(response.data);
         });
-      Diary.create(
-        // 꿈 저장
-        {
-          author: userId,
-          likes: 0,
-          emotion: emotion,
-          keyword: keyword,
-          ...req.body,
-          createdAt,
-        },
-        (err, diary) => {
-          if (err) {
-            return res.status(200).json({ success: false, err });
-          }
-          // 꿈 분석 넘어오면 users에 있는 키워드 통계 업데이트 로직 가져오기
-          return res.status(200).json({ success: true, diary });
-        }
-      );
+
       // 유저 키워드 통계 업데이트
       Diary.find({ author: user._id }, (err, diaries) => {
         if (err) {
@@ -132,6 +145,20 @@ router.post("/user/:userId", (req, res) => {
           });
         }
       });
+
+      const diary = await Diary.create(
+        // 꿈 저장
+        {
+          author: userId,
+          likes: 0,
+          emotion: emotion,
+          keyword: keyword,
+          content: content,
+          img: img,
+          createdAt,
+        }
+      );
+      return res.status(200).json({ success: true, diary });
     } else {
       return res.status(200).json({ success: false });
     }
