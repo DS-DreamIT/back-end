@@ -58,7 +58,7 @@ router.post("/user/:userId", (req, res) => {
       // 꿈 분석
       await axios
         .post(`${process.env.AI_API_URL}/emotion`, {
-          sentence: content,
+          content: content,
         })
         .then((response) => {
           emotion = response.data.result;
@@ -66,7 +66,7 @@ router.post("/user/:userId", (req, res) => {
         });
       await axios
         .post(`${process.env.AI_API_URL}/keyword`, {
-          sentence: content,
+          content: content,
         })
         .then((response) => {
           keyword = response.data.keywords;

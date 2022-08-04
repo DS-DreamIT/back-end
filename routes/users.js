@@ -135,8 +135,8 @@ router.post("/login", (req, res) => {
       return res.status(200).json({ success: false, message: "no user" });
     }
     if (user) {
-      const checkPassword = () => {
-        const comparePassword = bcrypt.compare(
+      const checkPassword = async () => {
+        const comparePassword = await bcrypt.compare(
           req.body.password,
           user.password
         );
@@ -150,7 +150,7 @@ router.post("/login", (req, res) => {
             user.token = token;
             user.save((err, user) => {
               if (err) {
-                return res.status(200).json({ success: true, message: err });
+                return res.status(200).json({ success: true, error: err });
               }
               console.log(token);
               // 글쓴이 키워드 통계가 있는지 확인하기
@@ -163,9 +163,7 @@ router.post("/login", (req, res) => {
                 console.log("키워드 통계가 없습니다");
                 Diary.find({ author: user._id }, (err, diaries) => {
                   if (err) {
-                    return res
-                      .status(200)
-                      .json({ success: false, message: err });
+                    return res.status(200).json({ success: false, error: err });
                   }
                   if (diaries.length > 0) {
                     // 다이어리를 적은 적이 있는데 통계가 없을 때
@@ -211,6 +209,11 @@ router.post("/login", (req, res) => {
               }
             });
           }
+        } else {
+          return res.status(200).json({
+            success: false,
+            warning: "비밀번호를 올바르게 입력하세요",
+          });
         }
       };
       checkPassword();
