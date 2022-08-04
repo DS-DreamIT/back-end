@@ -30,7 +30,21 @@ router.get("/:diaryId", (req, res) => {
   });
 });
 
-// 유저(이메일)의 꿈 목록 전체 불러오기
+// 유저의 가장 최근 꿈 불러오기
+router.get("/recent/user/:userId", (req, res) => {
+  let userId = req.params.userId;
+
+  Diary.findOne({ author: userId })
+    .sort({ createdAt: -1 })
+    .exec((err, diary) => {
+      if (err) {
+        return res.status(200).json({ success: false, err });
+      }
+      return res.status(200).json({ success: true, diary });
+    });
+});
+
+// 유저의 꿈 목록 전체 불러오기
 router.get("/user/:userId", (req, res) => {
   let userId = req.params.userId;
 
