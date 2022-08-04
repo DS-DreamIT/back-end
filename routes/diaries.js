@@ -56,22 +56,22 @@ router.post("/user/:userId", (req, res) => {
       let emotion = [];
       let keyword = [];
       // 꿈 분석
-      await axios
-        .post(`${process.env.AI_API_URL}/emotion`, {
-          content: content,
-        })
-        .then((response) => {
-          emotion = response.data.result;
-          console.log(response.data);
-        });
-      await axios
-        .post(`${process.env.AI_API_URL}/keyword`, {
-          content: content,
-        })
-        .then((response) => {
-          keyword = response.data.keywords;
-          console.log(response.data);
-        });
+      // await axios
+      //   .post(`${process.env.AI_API_URL}/emotion`, {
+      //     content: content,
+      //   })
+      //   .then((response) => {
+      //     emotion = response.data.result;
+      //     console.log(response.data);
+      //   });
+      // await axios
+      //   .post(`${process.env.AI_API_URL}/keyword`, {
+      //     content: content,
+      //   })
+      //   .then((response) => {
+      //     keyword = response.data.keywords;
+      //     console.log(response.data);
+      //   });
       Diary.create(
         // 꿈 저장
         {
