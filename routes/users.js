@@ -203,7 +203,12 @@ router.post("/login", (req, res) => {
                   } else {
                     return res
                       .status(200)
-                      .json({ success: true, message: "로그인 성공" });
+                      .json({
+                        success: true,
+                        message: "로그인 성공",
+                        token: token,
+                        user: user,
+                      });
                   }
                 });
               }
