@@ -49,7 +49,21 @@ router.get("/:diaryId", (req, res) => {
   });
 });
 
-// 유저(이메일)의 꿈 목록 전체 불러오기
+// 유저의 가장 최근 꿈 불러오기
+router.get("/recent/user/:userId", (req, res) => {
+  let userId = req.params.userId;
+
+  Diary.findOne({ author: userId })
+    .sort({ createdAt: -1 })
+    .exec((err, diary) => {
+      if (err) {
+        return res.status(200).json({ success: false, err });
+      }
+      return res.status(200).json({ success: true, diary });
+    });
+});
+
+// 유저의 꿈 목록 전체 불러오기
 router.get("/user/:userId", (req, res) => {
   let userId = req.params.userId;
 
@@ -84,25 +98,40 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
       let emotion = [];
       let keyword = [];
       // 꿈 분석
-      await axios
-        .post(`${process.env.AI_API_URL}/emotion`, {
-          content: content,
-        })
-        .then((response) => {
-          emotion = response.data.result;
-          console.log(response.data);
-        });
-      await axios
-        .post(`${process.env.AI_API_URL}/keyword`, {
-          content: content,
-        })
-        .then((response) => {
-          if (response.statusCode === 200) {
-            keyword = response.data.keywords;
+      // await axios
+      //   .post(`${process.env.AI_API_URL}/emotion`, {
+      //     content: content,
+      //   })
+      //   .then((response) => {
+      //     emotion = response.data.result;
+      //     console.log(response.data);
+      //   });
+      // await axios
+      //   .post(`${process.env.AI_API_URL}/keyword`, {
+      //     content: content,
+      //   })
+      //   .then((response) => {
+      //     keyword = response.data.keywords;
+      //     console.log(response.data);
+      //   });
+      Diary.create(
+        // 꿈 저장
+        {
+          author: userId,
+          likes: 0,
+          emotion: emotion,
+          keyword: keyword,
+          ...req.body,
+          createdAt,
+        },
+        (err, diary) => {
+          if (err) {
+            return res.status(200).json({ success: false, err });
           }
-          console.log(response.data);
-        });
-
+          // 꿈 분석 넘어오면 users에 있는 키워드 통계 업데이트 로직 가져오기
+          return res.status(200).json({ success: true, diary });
+        }
+      );
       // 유저 키워드 통계 업데이트
       Diary.find({ author: user._id }, (err, diaries) => {
         if (err) {
@@ -173,13 +202,20 @@ router.get("/emotion/:emotion", (req, res) => {
     if (err) {
       return res.status(200).json({ success: false, err });
     }
-    Like.find({ diaryId: diary._id }).exec((err, likes) => {
-      const like_list = likes.map((like) => like.userId);
-      if (err) {
-        return res.status(200).json({ json: false, err });
-      }
-      return res.status(200).json({ success: true, like_list, diary });
-    });
+    if (diary) {
+      Like.find({ diaryId: diary._id }).exec((err, likes) => {
+        const like_list = likes.map((like) => like.userId);
+        if (err) {
+          return res.status(200).json({ json: false, err });
+        }
+        return res.status(200).json({ success: true, like_list, diary });
+      });
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: "해당 감정에 해당하는 꿈이 없습니다",
+      });
+    }
   });
 });
 

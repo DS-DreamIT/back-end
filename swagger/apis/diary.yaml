@@ -42,6 +42,32 @@ paths:
                     "userId": "62df4bc1f1ff31b19db9ace6",
                     "diaryId": "62df4df5c0c4a5405650dba4",
                   }
+  /api/diary/recent/user/{userId}:
+    get:
+      summary: "사용자의 가장 최근 꿈 1개 조회"
+      description: "params에 user의 고유 id를 포함하여 get 요청"
+      tags: [Diary]
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          description: "유저 id"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "62df4bc8f1ff31b19db9ace9"
+              summary: "지금 db에 존재하는 유저 id"
+      responses:
+        "200":
+          description: "사용자의 가장 최근 꿈 1개 조회"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              diaries:
+                type: object
   /api/diary/user/{userId}:
     get:
       summary: "사용자의 꿈 전체 리스트 조회"
