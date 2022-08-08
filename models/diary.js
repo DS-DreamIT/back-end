@@ -17,9 +17,6 @@ const diarySchema = new Schema({
   keyword: {
     type: Array,
   },
-  analysisType: {
-    type: Number,
-  },
   emotion: {
     type: Array,
   },
