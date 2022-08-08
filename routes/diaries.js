@@ -160,13 +160,20 @@ router.get("/emotion/:emotion", (req, res) => {
     if (err) {
       return res.status(200).json({ success: false, err });
     }
-    Like.find({ diaryId: diary._id }).exec((err, likes) => {
-      const like_list = likes.map((like) => like.userId);
-      if (err) {
-        return res.status(200).json({ json: false, err });
-      }
-      return res.status(200).json({ success: true, like_list, diary });
-    });
+    if (diary) {
+      Like.find({ diaryId: diary._id }).exec((err, likes) => {
+        const like_list = likes.map((like) => like.userId);
+        if (err) {
+          return res.status(200).json({ json: false, err });
+        }
+        return res.status(200).json({ success: true, like_list, diary });
+      });
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: "해당 감정에 해당하는 꿈이 없습니다",
+      });
+    }
   });
 });
 
