@@ -134,10 +134,10 @@ paths:
       responses:
         "200":
           description: "꿈 저장 성공"
-  /api/diary/emotion/{emotion}:
+  /api/diary/emotion/{emotion}/user/{userId}:
     get:
-      summary: "특정 감정에 해당하는 글 하나를 랜덤 조회"
-      description: "params에 emotion(감정)을 포함하여 get 요청"
+      summary: "특정 감정에 해당하는 글 하나를 랜덤 조회(본인이 작성한 글 제외)"
+      description: "params에 emotion(감정)과 user의 고유 id를 포함하여 get 요청"
       tags: [Diary]
       parameters:
         - name: "emotion"
@@ -148,8 +148,18 @@ paths:
             type: string
           examples:
             Sample:
-              value: 공포
+              value: 행복
               summary: 감정
+        - name: "userId"
+          in: "path"
+          required: true
+          description: "유저 id"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: 62df4bd1f1ff31b19db9aced
+              summary: 행복에 해당하는 꿈 일기를 갖고 있는 유저
       responses:
         "200":
           description: "감정별 꿈 불러오기 성공"
