@@ -25,22 +25,31 @@ router.get("/:userId", (req, res) => {
       return res.status(400).json({ success: false, err });
     }
     if (user) {
-      Diary.find({ author: user._id }).exec((err, diaries) => {
-        if (err) {
-          return res.status(200).json({ success: true, user });
-        }
-        const diary_list = diaries.map((d) => {
-          return { _id: d._id, emotion: d.emotion };
+      Diary.find({ author: user._id })
+        .sort({ createdAt: "desc" })
+        .exec((err, diaries) => {
+          if (err) {
+            return res.status(200).json({ success: true, user });
+          }
+          const recent_diary_list = diaries.reduce((arr, diary, idx) => {
+            if (idx < 6) {
+              let temp = new Object();
+              temp["_id"] = diary._id;
+              temp["emotion"] = diary.emotion;
+              temp["createdAt"] = diary.createdAt;
+              arr.push(temp);
+            }
+            return arr;
+          }, []);
+          const diary_count = diaries.length;
+          console.log(recent_diary_list);
+          return res.status(200).json({
+            success: true,
+            user,
+            diary_list: recent_diary_list,
+            diary_count: diary_count,
+          });
         });
-        const diary_count = diaries.length;
-        console.log(diary_count);
-        return res.status(200).json({
-          success: true,
-          user,
-          diary_list: diary_list,
-          diary_count: diary_count,
-        });
-      });
     }
   });
 });
