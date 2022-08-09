@@ -18,9 +18,9 @@ router.get("/", (req, res) => {
 });
 
 // 회원 정보 불러오기
-router.get("/:userEmail", (req, res) => {
-  let userEmail = req.params.userEmail;
-  User.findOne({ email: userEmail }).exec((err, user) => {
+router.get("/:userId", (req, res) => {
+  let userId = req.params.userId;
+  User.findOne({ _id: userId }).exec((err, user) => {
     if (err) {
       return res.status(400).json({ success: false, err });
     }
@@ -201,14 +201,12 @@ router.post("/login", (req, res) => {
                       console.log(keywords);
                     });
                   } else {
-                    return res
-                      .status(200)
-                      .json({
-                        success: true,
-                        message: "로그인 성공",
-                        token: token,
-                        user: user,
-                      });
+                    return res.status(200).json({
+                      success: true,
+                      message: "로그인 성공",
+                      token: token,
+                      user: user,
+                    });
                   }
                 });
               }
