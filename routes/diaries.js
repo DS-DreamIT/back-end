@@ -174,20 +174,6 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
           });
         }
       });
-
-      const diary = await Diary.create(
-        // 꿈 저장
-        {
-          author: userId,
-          likes: 0,
-          emotion: emotion,
-          keyword: keyword,
-          content: content,
-          img: img,
-          createdAt,
-        }
-      );
-      return res.status(200).json({ success: true, diary });
     } else {
       return res.status(200).json({ success: false });
     }
@@ -195,10 +181,13 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
 });
 
 // 특정 감정의 꿈 일기 가져오기
-router.get("/emotion/:emotion", (req, res) => {
+router.get("/emotion/:emotion/user/:userId", (req, res) => {
   let emotion = req.params.emotion;
+  let userId = req.params.userId;
 
-  Diary.findOne({ emotion: emotion }).exec((err, diary) => {
+  Diary.findOne({
+    $and: [{ emotion: { $in: emotion } }, { author: { $ne: userId } }],
+  }).exec((err, diary) => {
     if (err) {
       return res.status(200).json({ success: false, err });
     }

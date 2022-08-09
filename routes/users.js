@@ -19,13 +19,16 @@ router.get("/", (req, res) => {
 
 // 회원 정보 불러오기
 router.get("/:userId", (req, res) => {
+  const day = new Date();
+  day.setDate(day.getDate() - 3);
+
   let userId = req.params.userId;
   User.findOne({ _id: userId }).exec((err, user) => {
     if (err) {
       return res.status(400).json({ success: false, err });
     }
     if (user) {
-      Diary.find({ author: user._id })
+      Diary.find({ author: user._id, createdAt: { $lt: day } })
         .sort({ createdAt: "desc" })
         .exec((err, diaries) => {
           if (err) {
@@ -117,25 +120,6 @@ router.post("/register", async (req, res) => {
 // 로그인
 // body에 email, password
 router.post("/login", (req, res) => {
-  // passport.authenticate("local", (passportError, user, info) => {
-  //   if (passportError || !user) {
-  //     return res.status(200).json({ success: false, message: info.reason });
-  //   }
-
-  //   req.login(user, { session: false }, (loginError) => {
-  //     if (loginError) {
-  //       return res.status(200).json({ success: false, message: loginError });
-  //     }
-  //   });
-  //   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_TOKEN);
-  //   if (token) {
-  //     return res.status(200).json({ success: true, token: token });
-  //   } else {
-  //     return res
-  //       .status(200)
-  //       .json({ success: false, message: "토큰 발급 안 됨" });
-  //   }
-  // });
   User.findOne({ email: req.body.userEmail }, (err, user) => {
     if (err) {
       return res.status(200).json({ success: false, message: err });
@@ -189,7 +173,7 @@ router.post("/login", (req, res) => {
                     const sort_list = Object.entries(keyword_list)
                       .sort(([, a], [, b]) => b - a)
                       .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
-
+                    console.log(sort_list);
                     let index = 0;
                     let result = [];
                     for (s in sort_list) {
@@ -201,13 +185,17 @@ router.post("/login", (req, res) => {
                     User.findOneAndUpdate(
                       { _id: user._id },
                       { $set: { keywords: result } }
-                    ).exec((err, keywords) => {
+                    ).exec((err, userUpdate) => {
                       if (err)
                         return res.status(200).json({
                           success: false,
                           error: "키워드 통계 업데이트 실패",
                         });
-                      console.log(keywords);
+                      return res.status(200).json({
+                        success: true,
+                        token: token,
+                        user: userUpdate,
+                      });
                     });
                   } else {
                     return res.status(200).json({
