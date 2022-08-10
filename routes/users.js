@@ -44,19 +44,34 @@ router.get("/:userId", (req, res) => {
             }
             return arr;
           }, []);
-          const diary_count = diaries.length;
-          console.log(recent_diary_list);
           return res.status(200).json({
             success: true,
             user,
             diary_list: recent_diary_list,
-            diary_count: diary_count,
           });
         });
     }
   });
 });
 
+// 다이어리 총 개수 반환
+router.get("/:userId/totalDiaryCount", async (req, res) => {
+  const userId = req.params.userId;
+  Diary.find({ author: userId }).exec((err, diaries) => {
+    if (err) {
+      return res.status(200).json({ success: false, err: "no diaries" });
+    }
+    if (diaries.length >= 25) {
+      User.findOneAndUpdate(
+        { _id: userId },
+        { $addToSet: { badge: "FullMoonBadge" } }
+      ).then((err, user) => {
+        console.log(user);
+      });
+    }
+    return res.status(200).json({ success: true, diary_count: diaries.length });
+  });
+});
 // 회원가입
 // body에 userEmail nickname password
 router.post("/register", async (req, res) => {

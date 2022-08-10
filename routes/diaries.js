@@ -36,10 +36,11 @@ const getBadgeList = (emotions) => {
   if (emotions.includes("중립")) emotion.push("NeutralityBadge");
   if (emotions.includes("슬픔")) emotion.push("SadBadge");
   if (emotions.includes("공포")) emotion.push("FearBadge");
-  if (emotions.includes("화남")) emotion.push("AngerBadge");
+  if (emotions.includes("분노")) emotion.push("AngerBadge");
   if (emotions.includes("불안")) emotion.push("UnrestBadge");
   if (emotions.includes("놀람")) emotion.push("SurprisedBadge");
   if (emotions.includes("설렘")) emotion.push("FlutterBadge");
+  emotion.push("WritingBeginnerBadge");
 
   return emotion;
 };
@@ -61,6 +62,12 @@ router.get("/:diaryId", (req, res) => {
       const like_list = likes.map((like) => like.userId);
       return res.status(200).json({ success: true, like_list, diary });
     });
+  });
+  User.findOneAndUpdate(
+    { _id: userId },
+    { $addToSet: { badge: "DreamUnLockBadge" } }
+  ).then((err, user) => {
+    console.log(user);
   });
 });
 
@@ -231,6 +238,12 @@ router.get("/emotion/:emotion/user/:userId", (req, res) => {
       });
     }
   });
+  User.findOneAndUpdate(
+    { _id: userId },
+    { $addToSet: { badge: "DreamTravelerBadge" } }
+  ).then((err, user) => {
+    console.log(user);
+  });
 });
 
 // 좋아요 수
@@ -286,6 +299,12 @@ router.put("/:diaryId/likes/user/:userId", (req, res) => {
           );
         });
       }
+    });
+    User.findOneAndUpdate(
+      { _id: userId },
+      { $addToSet: { badge: "LikeADreamBadge" } }
+    ).then((err, user) => {
+      console.log(user);
     });
   }
 });
