@@ -117,25 +117,25 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
         ("0" + (today.getMonth() + 1)).slice(-2) +
         "-" +
         ("0" + today.getDate()).slice(-2);
-      let emotion = [];
+      let emotion = ["중립"];
       let keyword = [];
       // 꿈 분석
-      await axios
-        .post(`${process.env.AI_API_URL}/emotion`, {
-          content: content,
-        })
-        .then((response) => {
-          emotion = response.data.result;
-          console.log(response.data);
-        });
-      await axios
-        .post(`${process.env.AI_API_URL}/keyword`, {
-          content: content,
-        })
-        .then((response) => {
-          keyword = response.data.keywords;
-          console.log(response.data);
-        });
+      await axios;
+      //   .post(`${process.env.AI_API_URL}/emotion`, {
+      //     content: content,
+      //   })
+      //   .then((response) => {
+      //     emotion = response.data.result;
+      //     console.log(response.data);
+      //   });
+      // await axios
+      //   .post(`${process.env.AI_API_URL}/keyword`, {
+      //     content: content,
+      //   })
+      //   .then((response) => {
+      //     keyword = response.data.keywords;
+      //     console.log(response.data);
+      //   });
       Diary.create(
         // 꿈 저장
         {
