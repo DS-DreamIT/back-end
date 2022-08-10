@@ -29,6 +29,21 @@ const upload = multer({
     },
   }),
 });
+
+const getBadgeList = (emotions) => {
+  let emotion = new Array();
+  if (emotions.includes("행복")) emotion.push("HappyBadge");
+  if (emotions.includes("중립")) emotion.push("NeutralityBadge");
+  if (emotions.includes("슬픔")) emotion.push("SadBadge");
+  if (emotions.includes("공포")) emotion.push("FearBadge");
+  if (emotions.includes("화남")) emotion.push("AngerBadge");
+  if (emotions.includes("불안")) emotion.push("UnrestBadge");
+  if (emotions.includes("놀람")) emotion.push("SurprisedBadge");
+  if (emotions.includes("설렘")) emotion.push("FlutterBadge");
+
+  return emotion;
+};
+
 router.get("/:diaryId", (req, res) => {
   let diaryId = req.params.diaryId;
   Diary.findOne({ _id: ObjectId(diaryId) }).exec((err, diary) => {
@@ -132,6 +147,16 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
           return res.status(200).json({ success: true, diary });
         }
       );
+      // emotion
+      const badges = getBadgeList(emotion);
+
+      // update
+      User.findOneAndUpdate(
+        { _id: userId },
+        { $addToSet: { badge: { $each: badges } } }
+      ).then((err, user) => {
+        console.log(user);
+      });
       // 유저 키워드 통계 업데이트
       Diary.find({ author: user._id }, (err, diaries) => {
         if (err) {
