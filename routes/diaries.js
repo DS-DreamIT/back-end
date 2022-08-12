@@ -45,8 +45,9 @@ const getBadgeList = (emotions) => {
   return emotion;
 };
 
-router.get("/:diaryId", (req, res) => {
+router.get("/:diaryId/user/:userId", (req, res) => {
   let diaryId = req.params.diaryId;
+  let userId = req.params.userId;
   Diary.findOne({ _id: ObjectId(diaryId) }).exec((err, diary) => {
     if (err) {
       return res
