@@ -128,14 +128,14 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
       //     emotion = response.data.result;
       //     console.log(response.data);
       //   });
-      await axios
-        .post(`${process.env.AI_API_URL}/keyword`, {
-          content: content,
-        })
-        .then((response) => {
-          keyword = response.data.keywords;
-          console.log(response.data);
-        });
+      // await axios
+      //   .post(`${process.env.AI_API_URL}/keyword`, {
+      //     content: content,
+      //   })
+      //   .then((response) => {
+      //     keyword = response.data.keywords;
+      //     console.log(response.data);
+      //   });
       Diary.create(
         // 꿈 저장
         {
