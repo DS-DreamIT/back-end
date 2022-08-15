@@ -45,8 +45,9 @@ const getBadgeList = (emotions) => {
   return emotion;
 };
 
-router.get("/:diaryId", (req, res) => {
+router.get("/:diaryId/user/:userId", (req, res) => {
   let diaryId = req.params.diaryId;
+  let userId = req.params.userId;
   Diary.findOne({ _id: ObjectId(diaryId) }).exec((err, diary) => {
     if (err) {
       return res
@@ -105,7 +106,7 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
   let content = req.body.content;
   let img = (req.file !== undefined && req.file?.location) || "";
   console.log("file : ", req.file);
-  console.log(req.body.content);
+  console.log(img);
   // 유저 확인
   User.findOne({ _id: userId }).exec(async (err, user) => {
     if (user) {
@@ -148,6 +149,7 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
           likes: 0,
           emotion: emotion,
           keyword: keyword,
+          img: img,
           ...req.body,
           createdAt,
         },
