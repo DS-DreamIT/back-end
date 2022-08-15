@@ -119,23 +119,28 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
         ("0" + today.getDate()).slice(-2);
       let emotion = [];
       let keyword = [];
-      // 꿈 분석
-      await axios
-        .post(`${process.env.EMOTION_API_URL}`, {
-          content: content,
-        })
-        .then((response) => {
-          emotion = response.data.result;
-          console.log(response.data);
-        });
-      await axios
-        .post(`${process.env.KEYWORD_API_URL}`, {
-          content: content,
-        })
-        .then((response) => {
-          keyword = response.data.keywords;
-          console.log(response.data);
-        });
+      try {
+        // 꿈 분석
+        await axios
+          .post(`${process.env.EMOTION_API_URL}`, {
+            content: content,
+          })
+          .then((response) => {
+            emotion = response.data.result;
+            console.log(response.data);
+          });
+        await axios
+          .post(`${process.env.KEYWORD_API_URL}`, {
+            content: content,
+          })
+          .then((response) => {
+            keyword = response.data.keywords;
+            console.log(response.data);
+          });
+      } catch (e) {
+        return res.status(200).json({ success: false, err: e });
+      }
+
       Diary.create(
         // 꿈 저장
         {
