@@ -118,29 +118,29 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
         ("0" + (today.getMonth() + 1)).slice(-2) +
         "-" +
         ("0" + today.getDate()).slice(-2);
-      let emotion = [];
-      let keyword = [];
-      try {
-        // 꿈 분석
-        await axios
-          .post(`${process.env.EMOTION_API_URL}`, {
-            content: content,
-          })
-          .then((response) => {
-            emotion = response.data.result;
-            console.log(response.data);
-          });
-        await axios
-          .post(`${process.env.KEYWORD_API_URL}`, {
-            content: content,
-          })
-          .then((response) => {
-            keyword = response.data.keywords;
-            console.log(response.data);
-          });
-      } catch (e) {
-        return res.status(200).json({ success: false, err: e });
-      }
+      let emotion = ["행복", "설렘"];
+      let keyword = ["놀이공원", "강아지", "츄러스"];
+      // try {
+      //   // 꿈 분석
+      //   await axios
+      //     .post(`${process.env.EMOTION_API_URL}`, {
+      //       content: content,
+      //     })
+      //     .then((response) => {
+      //       emotion = response.data.result;
+      //       console.log(response.data);
+      //     });
+      //   await axios
+      //     .post(`${process.env.KEYWORD_API_URL}`, {
+      //       content: content,
+      //     })
+      //     .then((response) => {
+      //       keyword = response.data.keywords;
+      //       console.log(response.data);
+      //     });
+      // } catch (e) {
+      //   return res.status(200).json({ success: false, err: e });
+      // }
 
       Diary.create(
         // 꿈 저장
@@ -191,7 +191,7 @@ router.post("/user/:userId", upload.single("Image"), (req, res) => {
           const sort_list = Object.entries(keyword_list)
             .sort(([, a], [, b]) => b - a)
             .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
-
+          console.log(sort_list);
           let index = 0;
           let result = [];
           for (s in sort_list) {
